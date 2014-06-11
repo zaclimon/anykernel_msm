@@ -4,6 +4,11 @@
 # based on diff of factory krt16s ramdisk vs franco
 # with check/mod for init.cm.rc
 
+# Copy the busybox specified in the fkbootscript.sh if not present
+if [ ! -d sbin/bb ] ; then
+cp -r ../bb/ sbin/
+fi
+
 cp ../fkbootscript.sh sbin/
 # init.mako.rc
 sed "/#/! {/dev\/socket\/mpdecision/ s/^    /    #/g}" -i init.mako.rc
