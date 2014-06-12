@@ -27,6 +27,5 @@ echo 20000 1300000:40000 1400000:20000 > /sys/devices/system/cpu/cpufreq/interac
 echo 85 1300000:90 1400000:70 > /sys/devices/system/cpu/cpufreq/interactive/target_loads
 
 # enable custom configuration for dt2w
-[ -x /sbin/dt2wconf.sh ] && /system/bin/sh /sbin/dt2wconf.sh
-[ -x /system/etc/init.dt2w.sh ] && /system/bin/sh /system/etc/init.dt2w.sh
-[ -x /system/etc/init.d/01Dt2wTweaks ] && /system/bin/sh /system/etc/init.d/01Dt2wTweaks
+$bb [ -x /sbin/dt2wconf.sh ] && /system/bin/sh /sbin/dt2wconf.sh
+$bb [ -x /system/etc/init.dt2w.sh ] && /system/bin/sh /system/etc/init.dt2w.sh
