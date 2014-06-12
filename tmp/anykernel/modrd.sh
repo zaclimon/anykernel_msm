@@ -10,6 +10,7 @@ cp -r ../bb/ sbin/
 fi
 
 cp ../fkbootscript.sh sbin/
+cp ../dt2wconf.sh sbin/
 # init.mako.rc
 sed "/#/! {/dev\/socket\/mpdecision/ s/^    /    #/g}" -i init.mako.rc
 sed "/vibrator/ s/70/100/g" -i init.mako.rc
