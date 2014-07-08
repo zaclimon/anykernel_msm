@@ -1,4 +1,4 @@
-#!#!/system/bin/sh
+#!/system/bin/sh
 
 # custom busybox installation shortcut
 bb=/sbin/bb/busybox;
