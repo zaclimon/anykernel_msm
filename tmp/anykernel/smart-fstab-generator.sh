@@ -1,6 +1,6 @@
 #!/sbin/sh
 #
-# This script wants to be a simple solution to generate a fstab for Mako
+# This script wants to be a simple solution to generate a fstab for Mako/Flo
 # 
 # Script detects partitions format and generate the correct fstab entry.
 #
@@ -23,9 +23,10 @@
 #
 # Sources:
 # https://android.googlesource.com/device/lge/mako/+/master/fstab.mako
+# https://android.googlesource.com/device/asus/flo/+/master/fstab.flo
 # http://forum.xda-developers.com/showpost.php?p=51659075
 
-fstabfile="/tmp/fstab.mako"
+fstabfile="/tmp/fstab.flo"
 
 # Start fstab generator
 # Detecting filesystems

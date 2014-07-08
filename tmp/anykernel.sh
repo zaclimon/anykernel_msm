@@ -13,15 +13,15 @@ cd ramdisk
 gzip -dc ../boot.img-ramdisk.gz | cpio -i
 chmod 755 ../modrd.sh
 ../modrd.sh
-cp -v fstab.mako /tmp/
+cp -v fstab.flo /tmp/
 ../smart-fstab-generator.sh
-cp /tmp/fstab.mako .
+cp /tmp/fstab.flo .
 
 find . | cpio --create --format='newc' | gzip > ../ramdisk.gz
 cd ..
 
 echo \#!/sbin/sh > createnewboot.sh
-echo ./mkbootimg --kernel zImage --ramdisk ramdisk.gz --cmdline \"$(cat boot.img-cmdline)\" --base 0x$(cat boot.img-base) --pagesize 2048 --ramdiskaddr 0x81800000 --output newboot.img >> createnewboot.sh
+echo ./mkbootimg --kernel zImage --ramdisk ramdisk.gz --cmdline \"$(cat boot.img-cmdline)\" --base 0x$(cat boot.img-base) --pagesize 2048 --ramdiskaddr 0x82200000 --output newboot.img >> createnewboot.sh
 chmod 755 createnewboot.sh
 chmod 755 mkbootimg
 ./createnewboot.sh

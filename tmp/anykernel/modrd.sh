@@ -1,52 +1,48 @@
 #!/sbin/sh
 # modrd.sh by ziddey
 # attempts to apply franco's ramdisk mods to any ramdisk
-# based on diff of factory krt16s ramdisk vs franco
+# based on diff of mako's factory krt16s ramdisk vs franco
 # with check/mod for init.cm.rc
+# Modified for Flo use by zaclimon
 
 # Copy the busybox specified in the fkbootscript.sh if not present
 if [ ! -d sbin/bb ] ; then
 cp -r ../bb/ sbin/
 fi
 
-# Copy franco's tweaks as well as the dt2w config script
+# Copy franco's tweaks
 cp ../fkbootscript.sh sbin/
-cp ../dt2wconf.sh sbin/
 
 # Add permissions to be executable
 chmod 0750 sbin/bb/busybox
 chmod 0750 sbin/fkbootscript.sh
-chmod 0750 sbin/dt2wconf.sh
 
 # init.mako.rc
-sed "/#/! {/dev\/socket\/mpdecision/ s/^    /    #/g}" -i init.mako.rc
-sed "/vibrator/ s/70/100/g" -i init.mako.rc
-sed "/^on charger/,/^on / {/write/d}" -i init.mako.rc
-sed "/scaling_governor/ s/ondemand/interactive/g" -i init.mako.rc
-sed "/ondemand/ d" -i init.mako.rc
+sed "/#/! {/dev\/socket\/mpdecision/ s/^    /    #/g}" -i init.flo.rc
+sed "/^on charger/,/^on / {/write/d}" -i init.flo.rc
+sed "/scaling_governor/ s/ondemand/interactive/g" -i init.flo.rc
+sed "/ondemand/ d" -i init.flo.rc
 
-sed "/cpu3\/cpufreq\/scaling_min_freq/,/on charger/ {/online/ d}" -i init.mako.rc
+sed "/cpu3\/cpufreq\/scaling_min_freq/,/on charger/ {/online/ d}" -i init.flo.rc
 sed "/cpu3\/cpufreq\/scaling_min_freq/ a\\
     write /sys/devices/system/cpu/cpu1/online 1\\
     write /sys/devices/system/cpu/cpu2/online 1\\
-    write /sys/devices/system/cpu/cpu3/online 1" -i init.mako.rc
+    write /sys/devices/system/cpu/cpu3/online 1" -i init.flo.rc
 
 # must use /class/ since +1 doesn't work with busybox sed:
-sed "/#/! {/service thermald/,/class/ s/^/#/g}" -i init.mako.rc
-sed "/#/! {/service mpdecision/,/class/ s/^/#/g}" -i init.mako.rc
+sed "/#/! {/service thermald/,/class/ s/^/#/g}" -i init.flo.rc
+sed "/#/! {/service mpdecision/,/class/ s/^/#/g}" -i init.flo.rc
 
-sed "/start diag_mdlog/,/notify_on_migrate/ {/start diag_mdlog/! d}" -i init.mako.rc
-#sed "/gsm.sim.state=READY/ i\\
 echo "
 service fkbootscript /sbin/fkbootscript.sh
     class late_start
 	user root
 	disabled
-    oneshot
+        oneshot
 
 on property:sys.boot_completed=1
 	start fkbootscript
-	write /dev/cpuctl/apps/cpu.notify_on_migrate 1" >> init.mako.rc
+	write /dev/cpuctl/apps/cpu.notify_on_migrate 1" >> init.flo.rc
 
 
 # init.rc

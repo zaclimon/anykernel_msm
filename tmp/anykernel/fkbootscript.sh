@@ -1,4 +1,4 @@
-#!/system/bin/sh
+#!#!/system/bin/sh
 
 # custom busybox installation shortcut
 bb=/sbin/bb/busybox;
@@ -23,9 +23,11 @@ if [ ! -e /system/etc/init.d ]; then
 fi;
 $bb mount -o ro,remount /system;
 
-echo 20000 1300000:40000 1400000:20000 > /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
-echo 85 1300000:90 1400000:70 > /sys/devices/system/cpu/cpufreq/interactive/target_loads
+echo "20000 1350000:40000 1728000:20000" > /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay;
+echo 40000 > /sys/devices/system/cpu/cpufreq/interactive/min_sample_time;
+echo "80 1350000:90 1512000:70" > /sys/devices/system/cpu/cpufreq/interactive/target_loads;
+echo 90 > /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load;
 
-# enable custom configuration for dt2w
-$bb [ -x /sbin/dt2wconf.sh ] && /system/bin/sh /sbin/dt2wconf.sh
-$bb [ -x /system/etc/init.dt2w.sh ] && /system/bin/sh /system/etc/init.dt2w.sh
+echo 1 > /dev/cpuctl/apps/cpu.notify_on_migrate;
+echo 2 > /sys/devices/system/cpu/sched_mc_power_savings;
+
