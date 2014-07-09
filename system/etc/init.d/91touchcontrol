@@ -1,0 +1,35 @@
+#!/system/bin/sh
+#
+# This script controls the various wake touch inputs as well as their extensions (DT2W/S2W)
+# Thanks to flar2 @ XDA
+#
+#
+# Here's the values for S2W
+# Gesture........Value
+# Sweep right......1
+# Sweep left........2
+# Sweep up.........4
+# Sweep down....8
+#
+#
+
+# Toggle DT2W (1 to enable, 0 to disable)
+echo "0" > sys/android_touch/doubletap2wake
+
+# Toggle S2W (0 to disable)
+echo "0" > /sys/android_touch/sweep2wake
+
+# Toggle Magnetic Cover Sensor (1 to enable, 0 to disable)
+echo "0" > /sys/module/lid/parameters/enable_lid
+
+# DT2W/S2W Orientation (1 for portrait, 2 for landscape, 0 for both)
+echo "1" > /sys/android_touch/orientation
+
+# Disable DT2W/S2W when a magnetic cover is used (1 to enable, 0 to disable)
+echo "1" > /sys/android_touch/lid_suspend
+
+# Disable DT2W/S2W when the power button is pressed to sleep the device (1 to enable, 0 to disable)
+echo "1" > /sys/android_touch/pwrkey_suspend
+
+# Toggle shortsweep for S2W (1 to enable, 0 to disable)
+echo "0" > /sys/android_touch/shortsweep
