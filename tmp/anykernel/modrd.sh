@@ -10,6 +10,9 @@ if [ ! -d sbin/bb ] ; then
 cp -r ../bb/ sbin/
 fi
 
+# Check to see if there's any occurence of the fkbootscript service into init.flo.rc
+fkbootdetect=`grep -c "fkbootscript.sh" init.flo.rc`
+
 # Copy franco's tweaks
 cp ../fkbootscript.sh sbin/
 
@@ -33,6 +36,7 @@ sed "/cpu3\/cpufreq\/scaling_min_freq/ a\\
 sed "/#/! {/service thermald/,/class/ s/^/#/g}" -i init.flo.rc
 sed "/#/! {/service mpdecision/,/class/ s/^/#/g}" -i init.flo.rc
 
+if [ $fkbootdetect -eq 0 ] ; then
 echo "
 service fkbootscript /sbin/fkbootscript.sh
     class late_start
@@ -43,6 +47,7 @@ service fkbootscript /sbin/fkbootscript.sh
 on property:sys.boot_completed=1
 	start fkbootscript
 	write /dev/cpuctl/apps/cpu.notify_on_migrate 1" >> init.flo.rc
+fi
 
 
 # init.rc
