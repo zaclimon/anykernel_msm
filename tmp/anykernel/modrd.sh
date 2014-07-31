@@ -13,6 +13,9 @@ fi
 # Check to see if there's any occurence of the fkbootscript service into init.flo.rc
 fkbootdetect=`grep -c "fkbootscript.sh" init.flo.rc`
 
+# Detect if the device is a deb (LTE variant)
+debdetect=`grep -c "radio" fstab.flo`
+
 # Copy franco's tweaks
 cp ../fkbootscript.sh sbin/
 
@@ -20,7 +23,7 @@ cp ../fkbootscript.sh sbin/
 chmod 0750 sbin/bb/busybox
 chmod 0750 sbin/fkbootscript.sh
 
-# init.mako.rc
+# init.flo.rc
 sed "/#/! {/dev\/socket\/mpdecision/ s/^    /    #/g}" -i init.flo.rc
 sed "/^on charger/,/^on / {/write/d}" -i init.flo.rc
 sed "/scaling_governor/ s/ondemand/interactive/g" -i init.flo.rc
@@ -64,3 +67,10 @@ sed "/randomize_va_space/ s/2/0/g" -i init.rc
 #	chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor\\
 #    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" -i init.rc
 #fi
+
+if [ $debdetect -eq 1 ] ; then
+cp ../deb/* ./
+chmod 0750 init.flo.rc
+chmod 0640 fstab.flo
+chmod 0644 default.prop
+fi
