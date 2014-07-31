@@ -18,6 +18,12 @@ chmod 0750 sbin/bb/busybox
 chmod 0750 sbin/fkbootscript.sh
 chmod 0750 sbin/dt2wconf.sh
 
+# Check to see if there's any occurence of the fkbootscript service into init.mako.rc
+fkbootdetect=`grep -c "fkbootscript.sh" init.mako.rc`
+
+# Disable the thread migration if present
+threadmigration=`grep -c "write /dev/cpuctl/apps/cpu.notify_on_migrate 1" init.mako.rc`
+
 # init.mako.rc
 sed "/#/! {/dev\/socket\/mpdecision/ s/^    /    #/g}" -i init.mako.rc
 sed "/vibrator/ s/70/100/g" -i init.mako.rc
@@ -37,17 +43,23 @@ sed "/#/! {/service mpdecision/,/class/ s/^/#/g}" -i init.mako.rc
 
 sed "/start diag_mdlog/,/notify_on_migrate/ {/start diag_mdlog/! d}" -i init.mako.rc
 #sed "/gsm.sim.state=READY/ i\\
+
+if [ $fkbootdetect -eq 0 ] ; then
 echo "
 service fkbootscript /sbin/fkbootscript.sh
     class late_start
-	user root
-	disabled
+    user root
+    disabled
     oneshot
 
 on property:sys.boot_completed=1
-	start fkbootscript
-	write /dev/cpuctl/apps/cpu.notify_on_migrate 1" >> init.mako.rc
+    start fkbootscript
+    write /dev/cpuctl/apps/cpu.notify_on_migrate 0" >> init.mako.rc
+fi
 
+if [ $threadmigration -eq 1 ] ; then
+sed "s/cpu.notify_on_migrate 1/ cpu.notify_on_migrate 0/g" -i init.mako.rc
+fi
 
 # init.rc
 sed "/randomize_va_space/ s/2/0/g" -i init.rc
