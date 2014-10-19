@@ -1,6 +1,6 @@
 #!/system/bin/sh
 #
-# This script controls the various wake touch inputs as well as their extensions (DT2W/S2W)
+# This script controls the various wake touch inputs as well as their extensions (DT2W/S2W/Wake Gestures)
 # Thanks to flar2 @ XDA
 #
 #
@@ -33,3 +33,9 @@ echo "1" > /sys/android_touch/pwrkey_suspend
 
 # Toggle shortsweep for S2W (1 to enable, 0 to disable)
 echo "0" > /sys/android_touch/shortsweep
+
+# Toggle Wake Gestures (1 to use Wake gestures, 0 to use DT2W/S2W)
+echo "0" > /sys/android_touch/wake_gestures
+
+# Wake timeout (If you want to disable the touch wake features after a certain period of time. It is in minutes)
+echo "0" > /sys/android_touch/wake_timeout
