@@ -1,15 +1,22 @@
 #!/sbin/sh
-# modrd.sh by ziddey
-# attempts to apply franco's ramdisk mods to any ramdisk
-# based on diff of factory krt16s ramdisk vs franco
-# with check/mod for init.cm.rc
+# modrd.sh initially made by Ziddey
+#
+# Updated for Lollipop use by Zaclimon
+#
+
+
+# Check to see if there's any occurence of performance profile script in the ramdisk
+performanceprofiles=`grep -c "import init.performance_profiles.rc" init.mako.rc`
+
+# Detect the presence of franco's tweaks into init.mako.rc
+francotweaks=`grep -c "on property:sys.boot_completed=1" init.mako.rc`
 
 # Copy the busybox specified in the fkbootscript.sh if not present
 if [ ! -d sbin/bb ] ; then
 cp -r ../bb/ sbin/
 fi
 
-# Copy franco's tweaks as well as the dt2w config script
+# Copy franco's boot script as well as the dt2w config script
 cp ../fkbootscript.sh sbin/
 cp ../dt2wconf.sh sbin/
 
@@ -18,33 +25,24 @@ chmod 0750 sbin/bb/busybox
 chmod 0750 sbin/fkbootscript.sh
 chmod 0750 sbin/dt2wconf.sh
 
-# Check to see if there's any occurence of the fkbootscript service into init.mako.rc
-fkbootdetect=`grep -c "fkbootscript.sh" init.mako.rc`
+# Apply performance settings stuff
+if [ $performanceprofiles -eq 0 ] ; then
+sed '/import init.mako.tiny.rc/a \import init.performance_profiles.rc' -i init.mako.rc
+cp ../init.performance_profiles.rc ./
+chmod 0755 init.performance_profiles.rc
+fi
 
-# Disable the thread migration if present
-threadmigration=`grep -c "write /dev/cpuctl/apps/cpu.notify_on_migrate 1" init.mako.rc`
+# Modifications to init.mako.rc
+if [ $performanceprofiles -eq 0 ] ; then
+sed '/scaling_governor/ s/ondemand/interactive/g' -i init.mako.rc
+sed '/ondemand/d' -i init.mako.rc
+sed '/cpu.notify_on_migrate /s/1/0/g' -i init.mako.rc
+sed '/group radio system/a \    disabled' -i init.mako.rc
+sed '/group root system/a \    disabled' -i init.mako.rc
+fi
 
-# init.mako.rc
-sed "/#/! {/dev\/socket\/mpdecision/ s/^    /    #/g}" -i init.mako.rc
-sed "/vibrator/ s/70/100/g" -i init.mako.rc
-sed "/^on charger/,/^on / {/write/d}" -i init.mako.rc
-sed "/scaling_governor/ s/ondemand/interactive/g" -i init.mako.rc
-sed "/ondemand/ d" -i init.mako.rc
-
-sed "/cpu3\/cpufreq\/scaling_min_freq/,/on charger/ {/online/ d}" -i init.mako.rc
-sed "/cpu3\/cpufreq\/scaling_min_freq/ a\\
-    write /sys/devices/system/cpu/cpu1/online 1\\
-    write /sys/devices/system/cpu/cpu2/online 1\\
-    write /sys/devices/system/cpu/cpu3/online 1" -i init.mako.rc
-
-# must use /class/ since +1 doesn't work with busybox sed:
-sed "/#/! {/service thermald/,/class/ s/^/#/g}" -i init.mako.rc
-sed "/#/! {/service mpdecision/,/class/ s/^/#/g}" -i init.mako.rc
-
-sed "/start diag_mdlog/,/notify_on_migrate/ {/start diag_mdlog/! d}" -i init.mako.rc
-#sed "/gsm.sim.state=READY/ i\\
-
-if [ $fkbootdetect -eq 0 ] ; then
+# Applying some franco's stuff after boot
+if [ $francotweaks -eq 0 ] ; then
 echo "
 service fkbootscript /sbin/fkbootscript.sh
     class late_start
@@ -54,24 +52,15 @@ service fkbootscript /sbin/fkbootscript.sh
 
 on property:sys.boot_completed=1
     start fkbootscript
-    write /dev/cpuctl/apps/cpu.notify_on_migrate 0" >> init.mako.rc
+    write /sys/block/mmcblk0/queue/scheduler deadline
+    write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay "20000 800000:40000 1300000:20000"
+    write /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load 90
+    write /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq 1134000
+    write /sys/devices/system/cpu/cpufreq/interactive/io_is_busy 1
+    write /sys/devices/system/cpu/cpufreq/interactive/target_loads "85 800000:90 1300000:70"
+    write /sys/devices/system/cpu/cpufreq/interactive/min_sample_time "40000 1200000:80000"
+    write /sys/devices/system/cpu/cpufreq/interactive/sampling_down_factor 100000
+    write /sys/devices/system/cpu/cpufreq/interactive/timer_rate 60000
+    write /sys/devices/system/cpu/cpufreq/interactive/input_boost_freq 1190400
+    write /sys/devices/system/cpu/cpufreq/interactive/max_freq_hysteresis 100000 " >> init.mako.rc
 fi
-
-if [ $threadmigration -eq 1 ] ; then
-sed "s/cpu.notify_on_migrate 1/ cpu.notify_on_migrate 0/g" -i init.mako.rc
-fi
-
-# init.rc
-sed "/randomize_va_space/ s/2/0/g" -i init.rc
-
-[ -f init.cm.rc ] && sed "/ondemand/ d" -i init.cm.rc
-#sed "/sys\/devices/ s/0660/0664/g" -i init.rc
-#if [ -e init.cm.rc ]; then
-#	sed "/sys\/devices/ s/0660/0664/g" -i init.cm.rc
-#else # cm should already have the following...
-#grep -q "scaling_governor" init.rc || sed "/chmod.*scaling_max_freq/ a\\
-#	chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq\\
-#    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq\\
-#	chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor\\
-#    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" -i init.rc
-#fi
