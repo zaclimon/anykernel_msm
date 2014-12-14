@@ -11,17 +11,12 @@ performanceprofiles=`grep -c "import init.performance_profiles.rc" init.mako.rc`
 # Detect the presence of franco's tweaks into init.mako.rc
 francotweaks=`grep -c "on property:sys.boot_completed=1" init.mako.rc`
 
-# Copy the busybox specified in the fkbootscript.sh if not present
-if [ ! -d sbin/bb ] ; then
-cp -r ../bb/ sbin/
-fi
 
 # Copy franco's boot script as well as the dt2w config script
 cp ../fkbootscript.sh sbin/
 cp ../dt2wconf.sh sbin/
 
 # Add permissions to be executable
-chmod 0750 sbin/bb/busybox
 chmod 0750 sbin/fkbootscript.sh
 chmod 0750 sbin/dt2wconf.sh
 
