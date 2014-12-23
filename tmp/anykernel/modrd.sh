@@ -1,76 +1,67 @@
 #!/sbin/sh
-# modrd.sh by ziddey
-# attempts to apply franco's ramdisk mods to any ramdisk
-# based on diff of mako's factory krt16s ramdisk vs franco
-# with check/mod for init.cm.rc
-# Modified for Flo use by zaclimon
+# modrd.sh initially made by Ziddey
+#
+# Updated for Lollipop use by Zaclimon
+#
 
-# Copy the busybox specified in the fkbootscript.sh if not present
-if [ ! -d sbin/bb ] ; then
-cp -r ../bb/ sbin/
-fi
 
-# Check to see if there's any occurence of the fkbootscript service into init.flo.rc
-fkbootdetect=`grep -c "fkbootscript.sh" init.flo.rc`
+# Check to see if there's any occurence of performance profile script in the ramdisk
+performanceprofiles=`grep -c "import init.performance_profiles.rc" init.flo.rc`
 
-# Detect if the device is a deb (LTE variant)
-debdetect=`grep -c "radio" fstab.flo`
+# Detect the presence of franco's tweaks into init.flo.rc
+francotweaks=`grep -c "on property:sys.boot_completed=1" init.flo.rc`
 
-# Copy franco's tweaks
+
+# Copy franco's boot script
 cp ../fkbootscript.sh sbin/
 
 # Add permissions to be executable
-chmod 0750 sbin/bb/busybox
 chmod 0750 sbin/fkbootscript.sh
 
-# init.flo.rc
-sed "/#/! {/dev\/socket\/mpdecision/ s/^    /    #/g}" -i init.flo.rc
-sed "/^on charger/,/^on / {/write/d}" -i init.flo.rc
-sed "/scaling_governor/ s/ondemand/interactive/g" -i init.flo.rc
-sed "/ondemand/ d" -i init.flo.rc
+# Apply performance settings stuff
+if [ $performanceprofiles -eq 0 ] ; then
+sed '/import init.flo.diag.rc/a \import init.performance_profiles.rc' -i init.flo.rc
+cp ../init.performance_profiles.rc ./
+chmod 0755 init.performance_profiles.rc
+fi
 
-sed "/cpu3\/cpufreq\/scaling_min_freq/,/on charger/ {/online/ d}" -i init.flo.rc
-sed "/cpu3\/cpufreq\/scaling_min_freq/ a\\
-    write /sys/devices/system/cpu/cpu1/online 1\\
-    write /sys/devices/system/cpu/cpu2/online 1\\
-    write /sys/devices/system/cpu/cpu3/online 1" -i init.flo.rc
+# Modifications to init.flo.rc
+if [ $francotweaks -eq 0 ] ; then
+sed '/scaling_governor/ s/ondemand/interactive/g' -i init.flo.rc
+sed '/ondemand/d' -i init.flo.rc
+sed '/cpu.notify_on_migrate /s/1/0/g' -i init.flo.rc
+sed '/group radio system/a \    disabled' -i init.flo.rc
+sed '/group root system/a \    disabled' -i init.flo.rc
+fi
 
-# must use /class/ since +1 doesn't work with busybox sed:
-sed "/#/! {/service thermald/,/class/ s/^/#/g}" -i init.flo.rc
-sed "/#/! {/service mpdecision/,/class/ s/^/#/g}" -i init.flo.rc
+# Modifications to init.rc
+if [ $francotweaks -eq 0 ] ; then
+sed '/sys\/devices/ s/0660/0664/g' -i init.rc
+sed '/chmod 0664 \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_max_freq/ a\    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq' -i init.rc
+sed '/chown system system \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_min_freq/ a\    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq' -i init.rc
+sed '/chmod 0664 \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_min_freq/ a\    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor' -i init.rc
+sed '/chown system system \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_governor a\    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor' -i init.rc
+fi
 
-if [ $fkbootdetect -eq 0 ] ; then
+# Applying some franco's stuff after boot
+if [ $francotweaks -eq 0 ] ; then
 echo "
 service fkbootscript /sbin/fkbootscript.sh
     class late_start
-	user root
-	disabled
-        oneshot
+    user root
+    disabled
+    oneshot
 
 on property:sys.boot_completed=1
-	start fkbootscript
-	write /dev/cpuctl/apps/cpu.notify_on_migrate 1" >> init.flo.rc
-fi
-
-
-# init.rc
-sed "/randomize_va_space/ s/2/0/g" -i init.rc
-
-[ -f init.cm.rc ] && sed "/ondemand/ d" -i init.cm.rc
-#sed "/sys\/devices/ s/0660/0664/g" -i init.rc
-#if [ -e init.cm.rc ]; then
-#	sed "/sys\/devices/ s/0660/0664/g" -i init.cm.rc
-#else # cm should already have the following...
-#grep -q "scaling_governor" init.rc || sed "/chmod.*scaling_max_freq/ a\\
-#	chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq\\
-#    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq\\
-#	chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor\\
-#    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" -i init.rc
-#fi
-
-if [ $debdetect -eq 1 ] ; then
-cp ../deb/* ./
-chmod 0750 init.flo.rc
-chmod 0640 fstab.flo
-chmod 0644 default.prop
+    start fkbootscript
+    write /sys/block/mmcblk0/queue/scheduler deadline
+    write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay "20000 800000:40000 1300000:20000"
+    write /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load 90
+    write /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq 1134000
+    write /sys/devices/system/cpu/cpufreq/interactive/io_is_busy 1
+    write /sys/devices/system/cpu/cpufreq/interactive/target_loads "85 800000:90 1300000:70"
+    write /sys/devices/system/cpu/cpufreq/interactive/min_sample_time "40000 1200000:80000"
+    write /sys/devices/system/cpu/cpufreq/interactive/sampling_down_factor 100000
+    write /sys/devices/system/cpu/cpufreq/interactive/input_boost_freq 1134000
+    write /sys/devices/system/cpu/cpufreq/interactive/max_freq_hysteresis 100000 " >> init.flo.rc
 fi
