@@ -41,6 +41,7 @@ sed '/chmod 0664 \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_max_freq/ a
 sed '/chown system system \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_min_freq/ a\    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq' -i init.rc
 sed '/chmod 0664 \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_min_freq/ a\    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor' -i init.rc
 sed '/chown system system \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_governor a\    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor' -i init.rc
+sed '/seclabel u:r:install_recovery:s0/d' -i init.rc
 fi
 
 # Applying some franco's stuff after boot
