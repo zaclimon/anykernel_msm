@@ -35,7 +35,7 @@ echo "1" > /sys/android_touch/pwrkey_suspend
 echo "0" > /sys/android_touch/shortsweep
 
 # Toggle Wake Gestures (1 to use Wake gestures, 0 to use DT2W/S2W)
-echo "0" > /sys/android_touch/wake_gestures
+#echo "0" > /sys/android_touch/wake_gestures
 
 # Wake timeout (If you want to disable the touch wake features after a certain period of time. It is in minutes)
-echo "0" > /sys/android_touch/wake_timeout
+#echo "0" > /sys/android_touch/wake_timeout

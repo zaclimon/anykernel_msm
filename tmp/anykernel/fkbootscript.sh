@@ -15,3 +15,6 @@ if [ ! -e /system/etc/init.d ]; then
    chmod -R 755 /system/etc/init.d;
 fi;
  mount -o ro,remount /system;
+
+# execute the touch controls init.d script
+ [ -x /system/etc/touchcontrol.sh ] && /system/bin/sh /system/etc/touchcontrol.sh
