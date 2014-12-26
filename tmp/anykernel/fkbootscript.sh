@@ -19,3 +19,6 @@ fi;
 # enable custom configuration for dt2w
  [ -x /sbin/dt2wconf.sh ] && /system/bin/sh /sbin/dt2wconf.sh
  [ -x /system/etc/init.dt2w.sh ] && /system/bin/sh /system/etc/init.dt2w.sh
+
+# execute the otg control script
+[ -x /system/etc/otgcontrol.sh ] && /system/bin/sh /system/etc/otgcontrol.sh

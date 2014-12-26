@@ -1,3 +1,5 @@
+#!/system/bin/sh
+#
 # This script acts as a enabler/disabler for USB-OTG hack for the Nexus 4 (Mako)
 # Thanks to ziddey and faux123 @ XDA for this implementation.
 #
