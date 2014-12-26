@@ -20,7 +20,7 @@ cp ../dt2wconf.sh sbin/
 chmod 0750 sbin/fkbootscript.sh
 chmod 0750 sbin/dt2wconf.sh
 
-# Apply performance settings stuff
+# Apply performance profiles stuff
 if [ $performanceprofiles -eq 0 ] ; then
 sed '/import init.mako.tiny.rc/a \import init.performance_profiles.rc' -i init.mako.rc
 cp ../init.performance_profiles.rc ./
@@ -34,6 +34,11 @@ sed '/ondemand/d' -i init.mako.rc
 sed '/cpu.notify_on_migrate /s/1/0/g' -i init.mako.rc
 sed '/group radio system/a \    disabled' -i init.mako.rc
 sed '/group root system/a \    disabled' -i init.mako.rc
+fi
+
+# Modidfications to init.rc
+if [ $performanceprofiles -eq 0 ] ; then
+sed '/seclabel u:r:install_recovery:s0/d' -i init.rc
 fi
 
 # Applying some franco's stuff after boot
