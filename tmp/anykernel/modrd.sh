@@ -8,12 +8,12 @@
 # Check to see if there's any occurence of any of franco's tweaks in the ramdisk
 francotweaks=`grep -c "import init.performance_profiles.rc" init.mako.rc`
 
-# Copy franco's boot script as well as the dt2w config script
-cp ../fkbootscript.sh sbin/
+# Copy quanta boot script as well as the dt2w config script
+cp ../quantaboot.sh sbin/
 cp ../dt2wconf.sh sbin/
 
 # Add permissions to be executable
-chmod 0750 sbin/fkbootscript.sh
+chmod 0750 sbin/quantaboot.sh
 chmod 0750 sbin/dt2wconf.sh
 
 # Apply performance profiles stuff
@@ -48,14 +48,19 @@ fi
 # Applying franco's stuff after boot
 if [ $francotweaks -eq 0 ] ; then
 echo "
-service fkbootscript /sbin/fkbootscript.sh
+service quantaboot /sbin/quantaboot.sh
     class late_start
     user root
     disabled
     oneshot
 
 on property:sys.boot_completed=1
-    start fkbootscript
+    start quantaboot
     write /sys/block/mmcblk0/queue/scheduler noop
-    write /sys/devices/system/cpu/cpufreq/conservative/input_boost_freq 1512000 " >> init.mako.rc
+    write /sys/devices/system/cpu/cpufreq/conservative/input_boost_freq 1512000
+    write /sys/devices/system/cpu/cpufreq/conservative/up_threshold 95
+    write /sys/devices/system/cpu/cpufreq/conservative/freq_step 10
+    write /sys/devices/system/cpu/cpufreq/conservative/down_threshold 40
+    write /sys/class/misc/mako_hotplug_control/load_threshold 65
+    write /sys/class/misc/mako_hotplug_control/high_load_counter 5 " >> init.mako.rc
 fi
