@@ -49,7 +49,7 @@ FORMAT_CAC=$(grep /cache /etc/mtab | awk '{print $3}')
 # Writting /system
 echo "Writting /system to $FORMAT_SYS"
 if [ "$FORMAT_SYS" = "f2fs" ]; then
-    sed -e '/by-name\/system/c\\/dev\/block\/platform\/msm_sdcc.1\/by-name\/system       \/system         f2fs    ro,noatime,nosuid,nodev,discard,nodiratime,inline_xattr,errors=recover    wait' -i $fstabfile
+    sed -e '/by-name\/system/c\\/dev\/block\/platform\/msm_sdcc.1\/by-name\/system       \/system         f2fs    ro,noatime,nosuid,nodev,discard,nodiratime,inline_xattr,inline_data,nobarrier,active_logs=4    wait' -i $fstabfile
 elif [ "$FORMAT_SYS" = "ext4" ]; then
     sed -e '/by-name\/system/c\\/dev\/block\/platform\/msm_sdcc.1\/by-name\/system       \/system         ext4    ro,barrier=1                                                                 wait' -i $fstabfile
 fi
@@ -57,7 +57,7 @@ fi
 # Writting /cache
 echo "Writting /cache to $FORMAT_CAC"
 if [ "$FORMAT_CAC" = "f2fs" ]; then
-    sed -e '/by-name\/cache/c\\/dev\/block\/platform\/msm_sdcc.1\/by-name\/cache        \/cache          f2fs    noatime,nosuid,nodev,discard,nodiratime,inline_xattr,errors=recover       wait,check' -i $fstabfile
+    sed -e '/by-name\/cache/c\\/dev\/block\/platform\/msm_sdcc.1\/by-name\/cache        \/cache          f2fs    noatime,nosuid,nodev,discard,nodiratime,inline_xattr,inline_data,nobarrier,active_logs=4       wait,check' -i $fstabfile
 elif [ "$FORMAT_CAC" = "ext4" ]; then
     sed -e '/by-name\/cache/c\\/dev\/block\/platform\/msm_sdcc.1\/by-name\/cache        \/cache          ext4    noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,errors=panic    wait,check' -i $fstabfile
 fi
@@ -65,7 +65,7 @@ fi
 # Writting /data
 echo "Writting /DATA to $FORMAT_DAT"
 if [ "$FORMAT_DAT" = "f2fs" ]; then
-    sed -e '/by-name\/userdata/c\\/dev\/block\/platform\/msm_sdcc.1\/by-name\/userdata     \/data           f2fs    noatime,nosuid,nodev,discard,nodiratime,inline_xattr,errors=recover       wait,check,encryptable=/dev/block/platform/msm_sdcc.1/by-name/metadata' -i $fstabfile
+    sed -e '/by-name\/userdata/c\\/dev\/block\/platform\/msm_sdcc.1\/by-name\/userdata     \/data           f2fs    noatime,nosuid,nodev,discard,nodiratime,inline_xattr,inline_data,nobarrier,active_logs=4       wait,check,encryptable=/dev/block/platform/msm_sdcc.1/by-name/metadata' -i $fstabfile
 elif [ "$FORMAT_DAT" = "ext4" ]; then
     sed -e '/by-name\/userdata/c\\/dev\/block\/platform\/msm_sdcc.1\/by-name\/userdata     \/data           ext4    noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic    wait,check,encryptable=/dev/block/platform/msm_sdcc.1/by-name/metadata' -i $fstabfile
 fi
