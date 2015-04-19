@@ -8,13 +8,11 @@
 # Check to see if there's any occurence of any of franco's tweaks in the ramdisk
 francotweaks=`grep -c "import init.performance_profiles.rc" init.mako.rc`
 
-# Copy quanta boot script as well as the dt2w config script
+# Copy quanta boot script
 cp ../quantaboot.sh sbin/
-cp ../dt2wconf.sh sbin/
 
 # Add permissions to be executable
 chmod 0750 sbin/quantaboot.sh
-chmod 0750 sbin/dt2wconf.sh
 
 # Apply performance profiles stuff
 if [ $francotweaks -eq 0 ] ; then
