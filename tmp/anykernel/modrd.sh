@@ -51,6 +51,6 @@ on property:sys.boot_completed=1
     write /sys/devices/system/cpu/cpufreq/conservative/up_threshold 95
     write /sys/devices/system/cpu/cpufreq/conservative/freq_step 10
     write /sys/devices/system/cpu/cpufreq/conservative/down_threshold 40
-    write /sys/class/misc/mako_hotplug_control/load_threshold 65
+    write /sys/class/misc/mako_hotplug_control/load_threshold 80
     write /sys/class/misc/mako_hotplug_control/high_load_counter 5 " >> init.flo.rc
 fi
