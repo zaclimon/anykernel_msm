@@ -8,12 +8,6 @@
 # Check to see if there's any occurence of performance profile script in the ramdisk
 francotweaks=`grep -c "import init.performance_profiles.rc" init.flo.rc`
 
-# Copy franco's boot script
-cp ../quantaboot.sh sbin/
-
-# Add permissions to be executable
-chmod 0750 sbin/quantaboot.sh
-
 # Apply performance settings stuff
 if [ $francotweaks -eq 0 ] ; then
 sed '/import init.flo.diag.rc/a \import init.performance_profiles.rc' -i init.flo.rc
@@ -51,14 +45,7 @@ fi
 # Applying some franco's stuff after boot
 if [ $francotweaks -eq 0 ] ; then
 echo "
-service quantaboot /sbin/quantaboot.sh
-    class late_start
-    user root
-    disabled
-    oneshot
-
 on property:sys.boot_completed=1
-    start quantaboot
     write /sys/block/mmcblk0/queue/scheduler noop
     write /sys/devices/system/cpu/cpufreq/conservative/input_boost_freq 1512000
     write /sys/devices/system/cpu/cpufreq/conservative/up_threshold 95
