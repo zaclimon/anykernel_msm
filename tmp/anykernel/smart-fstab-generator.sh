@@ -5,6 +5,7 @@
 # Script detects partitions format and generate the correct fstab entry.
 #
 # Creator: ffigue <arroba> gmail.com
+# Adapted by zaclimon
 #
 #    License:
 #
@@ -26,7 +27,8 @@
 # https://android.googlesource.com/device/asus/flo/+/master/fstab.flo
 # http://forum.xda-developers.com/showpost.php?p=51659075
 
-fstabfile="/tmp/fstab.flo"
+
+fstabfile="$1"
 
 # Start fstab generator
 # Detecting filesystems

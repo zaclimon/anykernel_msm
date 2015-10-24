@@ -1,36 +1,50 @@
 #!/sbin/sh
-# anykernel.sh
+#
+#
+# Anykernel inline kernel patching script
+#
+# Adapted for easier use by zaclimon
+#
 
+
+# Define the basic attributes now
+DEVICE=`find fstab.* | cut -d . -f2`
+FSTAB=`find fstab.*`
+BOOT_PARTITION=`grep /boot $FSTAB | cut -d " " -f1`
+
+# Preparing...
 cd /tmp/anykernel
+chmod 0755 unpackbootimg
+chmod 0755 mkbootimg
 
-# add usbdisk support to ramdisk
-echo Modifying ramdisk...
-dd if=/dev/block/platform/msm_sdcc.1/by-name/boot of=boot.img
-chmod 755 unpackbootimg
+# Unpack the kernel.
+dd if=$BOOT_PARTITION of=boot.img
 ./unpackbootimg -i boot.img
+
+# Define the kernel's attributes for the repacking.
+KERNEL_CMDLINE=`cat boot.img-cmdline | sed 's/.*/"&"/'`
+KERNEL_BASE=`cat boot.img-base`
+KERNEL_PAGESIZE=`cat boot.img-pagesize`
+KERNEL_OFFSET=`cat boot.img-kerneloff`
+RAMDISK_OFFSET=`cat boot.img-ramdiskoff`
+
+# Modify ramdisk
 mkdir ramdisk
 cd ramdisk
 gzip -dc ../boot.img-ramdisk.gz | cpio -i
-chmod 755 ../modrd.sh
+chmod 0755 ../modrd.sh
 ../modrd.sh
-cp -v fstab.flo /tmp/
-../smart-fstab-generator.sh
-cp /tmp/fstab.flo .
+../smart-fstab-generator.sh $FSTAB
 
 find . | cpio --create --format='newc' | gzip > ../ramdisk.gz
 cd ..
 
 echo \#!/sbin/sh > createnewboot.sh
-echo ./mkbootimg --kernel zImage --ramdisk ramdisk.gz --cmdline \"$(cat boot.img-cmdline)\" --base 0x$(cat boot.img-base) --pagesize 2048 --ramdiskaddr 0x82200000 --output newboot.img >> createnewboot.sh
-chmod 755 createnewboot.sh
-chmod 755 mkbootimg
+echo "./mkbootimg --kernel zImage --ramdisk ramdisk.gz --cmdline $KERNEL_CMDLINE --base $KERNEL_BASE --pagesize $KERNEL_PAGESIZE --kernel_offset $KERNEL_OFFSET --ramdisk_offset $RAMDISK_OFFSET -o newboot.img" >> createnewboot.sh
+chmod 0755 createnewboot.sh
 ./createnewboot.sh
 
 echo Flashing boot.img...
-dd if=newboot.img of=/dev/block/platform/msm_sdcc.1/by-name/boot
-
-# cleanup
-cd ..
-#rm -rf anykernel
+dd if=newboot.img of=$BOOT_PARTITION
 
 exit 0
