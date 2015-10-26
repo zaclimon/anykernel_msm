@@ -1,7 +1,7 @@
 #!/sbin/sh
 # modrd.sh initially made by Ziddey
 #
-# Updated for Lollipop use by Zaclimon
+# Updated for Marshmallow use by Zaclimon
 #
 
 
