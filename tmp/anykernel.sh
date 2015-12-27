@@ -8,8 +8,7 @@
 
 
 # Define the basic attributes now
-DEVICE=`find fstab.* | cut -d . -f2`
-FSTAB=`find fstab.*`
+FSTAB=`find fstab.* | head -n 1`
 BOOT_PARTITION=`grep /boot $FSTAB | cut -d " " -f1`
 
 # Preparing...
