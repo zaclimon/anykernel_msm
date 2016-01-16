@@ -4,36 +4,33 @@ on property:sys.boot_completed=1
 
 # Power saving profile
 on property:fku.perf.profile=0
-    write /sys/devices/system/cpu/cpu1/online 1
-    write /sys/devices/system/cpu/cpu2/online 1
-    write /sys/devices/system/cpu/cpu3/online 1
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1026000
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1026000
     write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1026000
     write /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq 1026000
-    write /sys/class/misc/mako_hotplug_control/load_threshold 100
+    write /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq 810000
+    write /sys/module/cpu_boost/parameters/input_boost_freq 1026000
+    write /sys/module/cpu_boost/parameters/input_boost_ms 40
     write /sys/class/kgsl/kgsl-3d0/max_gpuclk 128000000
 
 # Balance
 on property:fku.perf.profile=1
-    write /sys/devices/system/cpu/cpu1/online 1
-    write /sys/devices/system/cpu/cpu2/online 1
-    write /sys/devices/system/cpu/cpu3/online 1
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1512000
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1512000
     write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1512000
     write /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq 1512000
-    write /sys/class/misc/mako_hotplug_control/load_threshold 80
+    write /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq 1026000
+    write /sys/module/cpu_boost/parameters/input_boost_freq 1512000
+    write /sys/module/cpu_boost/parameters/input_boost_ms 250
     write /sys/class/kgsl/kgsl-3d0/max_gpuclk 320000000
 
 # Performance
 on property:fku.perf.profile=2
-    write /sys/devices/system/cpu/cpu1/online 1
-    write /sys/devices/system/cpu/cpu2/online 1
-    write /sys/devices/system/cpu/cpu3/online 1
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1728000
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1728000
     write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1728000
     write /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq 1728000
-    write /sys/class/misc/mako_hotplug_control/load_threshold 0
+    write /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq 1512000
+    write /sys/module/cpu_boost/parameters/input_boost_freq 1512000
+    write /sys/module/cpu_boost/parameters/input_boost_ms 1000
     write /sys/class/kgsl/kgsl-3d0/max_gpuclk 400000000

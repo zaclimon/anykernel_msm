@@ -1,11 +1,12 @@
 #!/sbin/sh
 # modrd.sh initially made by Ziddey
 #
+# Edits the target device's init scripts according to the desired modification
 # Updated for Marshmallow use by Zaclimon
 #
 
 
-# Check to see if there's any occurence of performance profile script in the ramdisk
+# Check to see if there's any occurence of the performance profile script in the ramdisk
 francotweaks=`grep -c "import init.performance_profiles.rc" init.flo.rc`
 
 # Apply performance settings stuff
@@ -15,42 +16,53 @@ cp ../init.performance_profiles.rc ./
 chmod 0755 init.performance_profiles.rc
 fi
 
-# Modifications to init.flo.rc/init.deb.rc
+# Modifications to init.flo.rc
 if [ $francotweaks -eq 0 ] ; then
-sed '/on boot/ a\    write /sys/block/mmcblk0/queue/nomerges 1' -i init.flo.rc
+sed '/scaling_governor/ s/ondemand/interactive/g' -i init.flo.rc
+sed '/ondemand/ d' -i init.flo.rc
+
+sed '/cpu3\/cpufreq\/scaling_min_freq 384000/ a\    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1512000' -i init.flo.rc
+sed '/cpu0\/cpufreq\/scaling_max_freq 1512000/ a\    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1512000' -i init.flo.rc
+sed '/cpu1\/cpufreq\/scaling_max_freq 1512000/ a\    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1512000' -i init.flo.rc
+sed '/cpu2\/cpufreq\/scaling_max_freq 1512000/ a\    write /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq 1512000' -i init.flo.rc
+sed '/cpu3\/online 1/ a\    # Interactive' -i init.flo.rc
+sed '/cpu3\/online 1/ a\\' -i init.flo.rc
+
+sed '/# Interactive/ a\    restorecon_recursive /sys/devices/system/cpu/cpufreq/interactive' -i init.flo.rc
+sed '/restorecon_recursive \/sys\/devices\/system\/cpu\/cpufreq\/interactive/ a\    write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay "20000"' -i init.flo.rc
+sed '/interactive\/above_hispeed_delay "20000"/ a\    write /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load 95' -i init.flo.rc
+sed '/interactive\/go_hispeed_load 95/ a\    write /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq 1026000' -i init.flo.rc
+sed '/interactive\/hispeed_freq 1026000/ a\    write /sys/devices/system/cpu/cpufreq/interactive/io_is_busy 1' -i init.flo.rc
+sed '/interactive\/io_is_busy 1/ a\    write /sys/devices/system/cpu/cpufreq/interactive/target_loads "85 810000:90 1350000:99"' -i init.flo.rc
+sed '/interactive\/target_loads "85 810000:90 1350000:99"/ a\    write /sys/devices/system/cpu/cpufreq/interactive/min_sample_time 60000' -i init.flo.rc
+sed '/interactive\/min_sample_time 60000/ a\    write /sys/devices/system/cpu/cpufreq/interactive/timer_rate 30000' -i init.flo.rc
+sed '/interactive\/timer_rate 30000/ a\    write /sys/devices/system/cpu/cpufreq/interactive/max_freq_hysteresis 100000' -i init.flo.rc
+sed '/interactive\/max_freq_hysteresis 100000/ a\    write /sys/devices/system/cpu/cpufreq/interactive/timer_slack 30000' -i init.flo.rc
+sed '/interactive\/timer_slack 30000/ a\\' -i init.flo.rc
+
+sed '/cpu.notify_on_migrate/ i\    # Sched' -i init.flo.rc
+sed '/cpu.notify_on_migrate/ s/1/0/g' -i init.flo.rc
+sed '/cpu.notify_on_migrate/ a\    # Cpu-Boost' -i init.flo.rc
+sed '/cpu.notify_on_migrate/ a\\' -i init.flo.rc
+
+sed '/# Cpu-Boost/ a\    write /sys/module/cpu_boost/parameters/boost_ms 20' -i init.flo.rc
+sed '/cpu_boost\/parameters\/boost_ms 20/ a\    write /sys/module/cpu_boost/parameters/input_boost_freq 1512000' -i init.flo.rc
+sed '/cpu_boost\/parameters\/input_boost_freq 1512000/ a\    write /sys/module/cpu_boost/parameters/input_boost_ms 250' -i init.flo.rc
+sed '/cpu_boost\/parameters\/input_boost_ms 250/ a\    # I/O' -i init.flo.rc
+sed '/cpu_boost\/parameters\/input_boost_ms 250/ a\\' -i init.flo.rc
+
+sed '/# I\/O/ a\    write /sys/block/mmcblk0/queue/nomerges 1' -i init.flo.rc
 sed '/queue\/nomerges 1/ a\    write /sys/block/mmcblk0/queue/rq_affinity 2' -i init.flo.rc
 sed '/queue\/rq_affinity 2/ a\    write /sys/block/mmcblk0/queue/add_random 0' -i init.flo.rc
-sed '/queue\/add_random 0/ a\    write /sys/block/mmcblk0/queue/read_ahead_kb 1024' -i init.flo.rc
-sed '/queue\/read_ahead_kb 1024/ a\\' -i init.flo.rc
-sed '/scaling_governor/ s/ondemand/conservative/g' -i init.flo.rc
-sed '/ondemand/ d' -i init.flo.rc
-sed '/cpu.notify_on_migrate/ s/1/0/g' -i init.flo.rc
+sed '/queue\/add_random 0/ a\    write /sys/block/mmcblk0/bdi/min_ratio 5' -i init.flo.rc
+sed '/bdi\/min_ratio 5/ a\    # KSM' -i init.flo.rc
+sed '/bdi\/min_ratio 5/ a\\' -i init.flo.rc
+
+sed '/# KSM/ a\    write /sys/kernel/mm/ksm/sleep_millisecs 1500' -i init.flo.rc
+sed '/ksm\/sleep_millisecs 1500/ a\    write /sys/kernel/mm/ksm/pages_to_scan 256' -i init.flo.rc
+sed '/ksm\/pages_to_scan 256/ a\    write /sys/kernel/mm/ksm/deferred_timer 1' -i init.flo.rc
+sed '/ksm\/deferred_timer 1/ a\    write /sys/kernel/mm/ksm/run 1' -i init.flo.rc
+
 sed '/group radio system/ a\    disabled' -i init.flo.rc
 sed '/group root system/ a\    disabled' -i init.flo.rc
-sed '/online 1/ d' -i init.flo.rc
-sed '/cpu0\/cpufreq\/scaling_governor "conservative"/ i\    write /sys/devices/system/cpu/cpu1/online 1 ' -i init.flo.rc
-sed '/cpu1\/online 1/ a\    write /sys/devices/system/cpu/cpu2/online 1' -i init.flo.rc
-sed '/cpu2\/online 1/ a\    write /sys/devices/system/cpu/cpu3/online 1' -i init.flo.rc
-fi
-
-# Modifications to init.rc
-if [ $francotweaks -eq 0 ] ; then
-sed '/chmod 0660 \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_max_freq/ a\    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq' -i init.rc
-sed '/chown system system \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_min_freq/ a\    chmod 0660 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq' -i init.rc
-sed '/chmod 0660 \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_min_freq/ a\    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor' -i init.rc
-sed '/chown system system \/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_governor a\    chmod 0660 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor' -i init.rc
-sed '/seclabel u:r:install_recovery:s0/d' -i init.rc
-fi
-
-# Applying some franco's stuff after boot
-if [ $francotweaks -eq 0 ] ; then
-echo "
-on property:sys.boot_completed=1
-    write /sys/block/mmcblk0/queue/scheduler deadline
-    write /sys/devices/system/cpu/cpufreq/conservative/input_boost_freq 1512000
-    write /sys/devices/system/cpu/cpufreq/conservative/up_threshold 95
-    write /sys/devices/system/cpu/cpufreq/conservative/freq_step 10
-    write /sys/devices/system/cpu/cpufreq/conservative/down_threshold 40
-    write /sys/class/misc/mako_hotplug_control/load_threshold 80
-    write /sys/class/misc/mako_hotplug_control/high_load_counter 5 " >> init.flo.rc
 fi
