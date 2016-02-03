@@ -66,3 +66,8 @@ sed '/ksm\/deferred_timer 1/ a\    write /sys/kernel/mm/ksm/run 1' -i init.flo.r
 sed '/group radio system/ a\    disabled' -i init.flo.rc
 sed '/group root system/ a\    disabled' -i init.flo.rc
 fi
+
+# Modifications to init.rc
+if [ $francotweaks -eq 0 ] ; then
+sed '/sys\/devices\/system\/cpu\/cpufreq\/interactive/ s/0660/0664/g' -i init.rc
+fi
