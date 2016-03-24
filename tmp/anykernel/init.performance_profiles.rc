@@ -5,8 +5,8 @@ on property:sys.boot_completed=1
 # Power saving profile
 on property:fku.perf.profile=0
     write /sys/devices/system/cpu/cpu1/online 1
-    write /sys/devices/system/cpu/cpu2/online 1
-    write /sys/devices/system/cpu/cpu3/online 1
+    write /sys/devices/system/cpu/cpu2/online 0
+    write /sys/devices/system/cpu/cpu3/online 0
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1026000
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1026000
     write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1026000
@@ -14,12 +14,14 @@ on property:fku.perf.profile=0
     write /sys/module/cpu_boost/parameters/input_boost_freq 918000
     write /sys/module/cpu_boost/parameters/input_boost_ms 40
     write /sys/class/kgsl/kgsl-3d0/max_gpuclk 128000000
+    write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay "20000 918000:60000 1026000:150000"
+    write /sys/devices/system/cpu/cpufreq/interactive/target_loads "90 384000:40 918000:80 1026000:95"
 
 # Balance
 on property:fku.perf.profile=1
     write /sys/devices/system/cpu/cpu1/online 1
-    write /sys/devices/system/cpu/cpu2/online 1
-    write /sys/devices/system/cpu/cpu3/online 1
+    write /sys/devices/system/cpu/cpu2/online 0
+    write /sys/devices/system/cpu/cpu3/online 0
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1242000
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1242000
     write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1242000
@@ -27,6 +29,8 @@ on property:fku.perf.profile=1
     write /sys/module/cpu_boost/parameters/input_boost_freq 918000
     write /sys/module/cpu_boost/parameters/input_boost_ms 100
     write /sys/class/kgsl/kgsl-3d0/max_gpuclk 200000000
+    write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay "20000 1026000:60000 1242000:150000"
+    write /sys/devices/system/cpu/cpufreq/interactive/target_loads "90 384000:40 1026000:80 1242000:95"
 
 # Performance
 on property:fku.perf.profile=2
@@ -39,3 +43,5 @@ on property:fku.perf.profile=2
     write /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq 1512000
     write /sys/module/cpu_boost/parameters/input_boost_ms 500
     write /sys/class/kgsl/kgsl-3d0/max_gpuclk 400000000
+    write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay "20000 1242000:60000 1512000:150000"
+    write /sys/devices/system/cpu/cpufreq/interactive/target_loads "90 384000:40 1242000:80 1512000:95"
