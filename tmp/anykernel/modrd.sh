@@ -45,14 +45,14 @@ sed '/interactive\/timer_slack 80000/ a\    # GPU' -i init.mako.rc
 sed '/interactive\/timer_slack 80000/ a\\' -i init.mako.rc
 
 sed '/# GPU/ a\    write /sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/max_gpuclk 200000000' -i init.mako.rc
-sed '/kgsl-3d0\/max_gpuclk 200000000/ a\    # Cpu-Boost' -i init.mako.rc
+sed '/kgsl-3d0\/max_gpuclk 200000000/ a\    # Mako-Hotplug' -i init.mako.rc
 sed '/kgsl-3d0\/max_gpuclk 200000000/ a\\' -i init.mako.rc
 
-sed '/# Cpu-Boost/ a\    write /sys/module/cpu_boost/parameters/boost_ms 20' -i init.mako.rc
-sed '/cpu_boost\/parameters\/boost_ms 20/ a\    write /sys/module/cpu_boost/parameters/input_boost_freq 1026000' -i init.mako.rc
-sed '/cpu_boost\/parameters\/input_boost_freq 1026000/ a\    write /sys/module/cpu_boost/parameters/input_boost_ms 100' -i init.mako.rc
-sed '/cpu_boost\/parameters\/input_boost_ms 100/ a\    # I/O' -i init.mako.rc
-sed '/cpu_boost\/parameters\/input_boost_ms 100/ a\\' -i init.mako.rc
+sed '/# Mako-Hotplug/ a\    write /sys/devices/virtual/misc/mako_hotplug_control/cpufreq_unplug_limit 1242000' -i init.mako.rc
+sed '/mako_hotplug_control\/cpufreq_unplug_limit 1242000/ a\    write /sys/devices/virtual/misc/mako_hotplug_control/load_threshold 75' -i init.mako.rc
+sed '/mako_hotplug_control\/load_threshold 75/ a\    write /sys/devices/virtual/misc/mako_hotplug_control/high_load_counter 5' -i init.mako.rc
+sed '/mako_hotplug_control\/high_load_counter 5/ a\    # I/O' -i init.mako.rc
+sed '/mako_hotplug_control\/high_load_counter 5/ a\\' -i init.mako.rc
 
 sed '/# I\/O/ a\    write /sys/block/mmcblk0/queue/nomerges 1' -i init.mako.rc
 sed '/queue\/nomerges 1/ a\    write /sys/block/mmcblk0/queue/rq_affinity 2' -i init.mako.rc
