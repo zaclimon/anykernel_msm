@@ -21,10 +21,10 @@ if [ $francotweaks -eq 0 ] ; then
 sed '/scaling_governor/ s/ondemand/interactive/g' -i init.flo.rc
 sed '/ondemand/ d' -i init.flo.rc
 
-sed '/cpu3\/cpufreq\/scaling_min_freq 384000/ a\    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1242000' -i init.flo.rc
-sed '/cpu0\/cpufreq\/scaling_max_freq 1242000/ a\    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1242000' -i init.flo.rc
-sed '/cpu1\/cpufreq\/scaling_max_freq 1242000/ a\    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1242000' -i init.flo.rc
-sed '/cpu2\/cpufreq\/scaling_max_freq 1242000/ a\    write /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq 1242000' -i init.flo.rc
+sed '/cpu3\/cpufreq\/scaling_min_freq 384000/ a\    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1512000' -i init.flo.rc
+sed '/cpu0\/cpufreq\/scaling_max_freq 1512000/ a\    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1512000' -i init.flo.rc
+sed '/cpu1\/cpufreq\/scaling_max_freq 1512000/ a\    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1512000' -i init.flo.rc
+sed '/cpu2\/cpufreq\/scaling_max_freq 1512000/ a\    write /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq 1512000' -i init.flo.rc
 sed '/cpu3\/online 1/ a\    # Interactive' -i init.flo.rc
 sed '/cpu3\/online 1/ a\\' -i init.flo.rc
 
@@ -42,14 +42,14 @@ sed '/interactive\/timer_slack 30000/ a\\' -i init.flo.rc
 
 sed '/cpu.notify_on_migrate/ i\    # Sched' -i init.flo.rc
 sed '/cpu.notify_on_migrate/ s/1/0/g' -i init.flo.rc
-sed '/cpu.notify_on_migrate/ a\    # Cpu-Boost' -i init.flo.rc
+sed '/cpu.notify_on_migrate/ a\    # Mako-Hotplug' -i init.flo.rc
 sed '/cpu.notify_on_migrate/ a\\' -i init.flo.rc
 
-sed '/# Cpu-Boost/ a\    write /sys/module/cpu_boost/parameters/boost_ms 20' -i init.flo.rc
-sed '/cpu_boost\/parameters\/boost_ms 20/ a\    write /sys/module/cpu_boost/parameters/input_boost_freq 1026000' -i init.flo.rc
-sed '/cpu_boost\/parameters\/input_boost_freq 1026000/ a\    write /sys/module/cpu_boost/parameters/input_boost_ms 100' -i init.flo.rc
-sed '/cpu_boost\/parameters\/input_boost_ms 100/ a\    # I/O' -i init.flo.rc
-sed '/cpu_boost\/parameters\/input_boost_ms 100/ a\\' -i init.flo.rc
+sed '/# Mako-Hotplug/ a\    write /sys/devices/virtual/misc/mako_hotplug_control/cpufreq_unplug_limit 1242000' -i init.flo.rc
+sed '/mako_hotplug_control\/cpufreq_unplug_limit 1242000/ a\    write /sys/devices/virtual/misc/mako_hotplug_control/load_threshold 75' -i init.flo.rc
+sed '/mako_hotplug_control\/load_threshold 75/ a\    write /sys/devices/virtual/misc/mako_hotplug_control/high_load_counter 5' -i init.flo.rc
+sed '/mako_hotplug_control\/high_load_counter 5/ a\    # I/O' -i init.flo.rc
+sed '/mako_hotplug_control\/high_load_counter 5/ a\\' -i init.flo.rc
 
 sed '/# I\/O/ a\    write /sys/block/mmcblk0/queue/nomerges 1' -i init.flo.rc
 sed '/queue\/nomerges 1/ a\    write /sys/block/mmcblk0/queue/rq_affinity 2' -i init.flo.rc
